@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El Tesoro del Ekeko</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito+Sans:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: fiesta de feria andina, alegre y clara; se juega en el celular.
+   IDEA: la mesa del puesto de feria, con la bolsa del Ekeko y las fichas que van saliendo.
+   PICTURE: la mesa misma: fichas grandes en fila y la bolsa acumulada en grande.
+   COLOUR and TYPE: magenta de aguayo dominante, oro del Ekeko, turquesa de acento; Baloo 2 + Nunito Sans.
+   LAYOUT: una columna centrada (max 560px) para el juego; tablas anchas en Resultados. */
+:root{color-scheme:light dark;
+ --bg:light-dark(#ffffff,#170a10);--ink:light-dark(#22111a,#f8ecef);--soft:light-dark(#6d5560,#c9aeb8);
+ --mag:light-dark(#9e1446,#c41d58);--magd:light-dark(#7a0f36,#8f1442);--gold:#f0b323;--teal:light-dark(#0f7d76,#3cc4b9);
+ --card:light-dark(#fbf1f4,#24121a);--line:light-dark(#ecd6de,#3a2029)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Nunito Sans",system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:"Baloo 2",system-ui,sans-serif;line-height:1.05;margin:0;text-wrap:balance}
+header{background:var(--mag);color:#fff;padding:22px max(5vw,16px) 18px;position:relative}
+header::after{content:"";position:absolute;left:0;right:0;bottom:-10px;height:10px;
+ background:repeating-linear-gradient(90deg,var(--gold) 0 18px,#e4572e 18px 30px,var(--teal) 30px 44px,#2b1b5e 44px 52px,#fff 52px 56px)}
+header .in{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:14px;justify-content:space-between}
+header h1{font-size:clamp(30px,7vw,42px)}
+header p{margin:2px 0 0;opacity:.85;font-size:14px}
+nav a{color:#fff;font-weight:700;font-size:14px;text-decoration:none;border:1.5px solid rgba(255,255,255,.6);border-radius:99px;padding:8px 14px;white-space:nowrap}
+main{max-width:560px;margin:0 auto;padding:34px max(5vw,16px) 40px}
+main.wide{max-width:980px}
+.lead{font-size:17px}
+.rules{list-style:none;padding:0;margin:18px 0;display:grid;gap:10px}
+.rules li{display:flex;gap:12px;align-items:center;background:var(--card);border-radius:14px;padding:10px 14px}
+.chip{flex:none;width:44px;height:44px;border-radius:50%;display:inline-grid;place-items:center;font:800 13px "Baloo 2",sans-serif;box-shadow:inset 0 -4px 0 rgba(0,0,0,.18),0 2px 6px rgba(0,0,0,.18)}
+.chip.D{background:radial-gradient(circle at 35% 30%,#fff4c2,#f0b323 45%,#b9800b);color:#5a3b00}
+.chip.P{background:radial-gradient(circle at 35% 30%,#fff,#c9ced6 50%,#8c939e);color:#2c3138}
+.chip.N{background:radial-gradient(circle at 35% 30%,#6b6b6b,#1b1b1b 55%,#000);color:#fff}
+.btn{font:700 17px "Nunito Sans",sans-serif;min-height:52px;padding:12px 20px;border-radius:14px;border:0;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;text-align:center}
+.btn:focus-visible,.opt:focus-visible,nav a:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.b1{background:var(--mag);color:#fff}.b1:hover{background:var(--magd)}
+.b2{background:var(--gold);color:#3b2600}
+.b3{background:transparent;color:var(--ink);border:2px solid var(--line)}
+.wa{background:#1f9e55;color:#fff}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:14px}
+.note{font-size:13px;color:var(--soft);margin-top:14px}
+.table{background:var(--card);border-radius:20px;padding:20px;border:2px solid var(--line)}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:14px;color:var(--soft)}
+.bolsa{text-align:center;margin:18px 0 6px}
+.bolsa .lbl{font-size:14px;color:var(--soft)}
+.bolsa .amt{font:800 clamp(56px,16vw,84px)/1 "Baloo 2",sans-serif;color:var(--mag);transition:transform .25s}
+.bolsa .amt.pop{transform:scale(1.12)}
+.drawn{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;min-height:52px;margin:12px 0}
+.drawn .chip{animation:in .35s ease-out}
+@keyframes in{from{transform:translateY(-24px) scale(.6);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.drawn .chip{animation:none}.bolsa .amt{transition:none}}
+.left{display:flex;gap:14px;justify-content:center;font-size:14px;color:var(--soft);flex-wrap:wrap}
+.left b{color:var(--ink)}
+.msg{text-align:center;font-weight:700;min-height:26px;margin:8px 0 2px}
+.msg.bad{color:#d0263b}.msg.good{color:var(--teal)}
+.q{margin:22px 0}
+.q h3{font-size:20px;margin-bottom:10px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{font:700 16px "Nunito Sans",sans-serif;min-height:46px;padding:8px 16px;border-radius:99px;border:2px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.opt[aria-pressed=true]{background:var(--teal);border-color:var(--teal);color:#fff}
+.sum{display:grid;gap:8px;margin:14px 0}
+.sum div{display:flex;justify-content:space-between;gap:10px;background:var(--card);border-radius:12px;padding:10px 14px}
+textarea{width:100%;min-height:150px;font:14px/1.4 ui-monospace,monospace;padding:12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink)}
+input[type=file]{font-size:16px;margin:10px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:18px;margin-top:18px}
+.box{background:var(--card);border-radius:16px;padding:16px}
+.box h3{font-size:19px;margin-bottom:8px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+.bar{height:10px;border-radius:5px;background:var(--mag);min-width:2px}
+td.b{width:40%}
+.kpis{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.kpis div{background:var(--card);border-radius:14px;padding:10px 16px}
+.kpis b{display:block;font:800 28px/1.1 "Baloo 2",sans-serif;color:var(--mag)}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header><div class="in">
+ <div><h1>El Tesoro del Ekeko</h1><p>Juego de feria · versión de prueba</p></div>
+ <nav><a id="navlink" href="#resultados">Resultados</a></nav>
+</div></header>
+
+<!-- INICIO -->
+<main id="vInicio">
+ <p class="lead">Pagás <b>Bs 5</b> y sacás fichas de la urna <b>una por una</b>. Cada ficha suma a la bolsa del Ekeko… salvo la negra.</p>
+ <ul class="rules">
+  <li><span class="chip D">+6</span><span><b>Dorada:</b> suma Bs 6 a tu bolsa. Hay 5 en la urna.</span></li>
+  <li><span class="chip P">+2</span><span><b>Plateada:</b> suma Bs 2. Hay 10 en la urna.</span></li>
+  <li><span class="chip N">✕</span><span><b>Negra (Zafra):</b> perdés todo lo de la bolsa. Hay 5 en la urna.</span></li>
+ </ul>
+ <p>Después de cada ficha decidís: <b>¿te plantás y cobrás, o sacás otra?</b> Jugá <span id="nPart">3</span> partidas como si fuera de verdad y al final respondé 3 preguntas cortas.</p>
+ <button class="btn b1" id="bStart" type="button">Empezar a jugar</button>
+ <p class="note">Proyecto académico de la materia Simulación de Sistemas (SIS 2520). No se usa dinero real y no se pide ningún dato personal: solo se registran las fichas, tus decisiones y tus respuestas.</p>
+</main>
+
+<!-- JUEGO -->
+<main id="vJuego" hidden>
+ <div class="table">
+  <div class="top"><span id="tPart">Partida 1 de 3</span><span>Pagaste Bs 5</span></div>
+  <div class="bolsa"><div class="lbl">Bolsa del Ekeko</div><div class="amt" id="amt">Bs 0</div></div>
+  <div class="drawn" id="drawn" aria-live="polite"></div>
+  <div class="msg" id="msg"></div>
+  <div class="left" id="left"></div>
+ </div>
+ <div id="acts">
+  <div class="row2">
+   <button class="btn b1" id="bDraw" type="button">Sacar ficha</button>
+   <button class="btn b2" id="bStop" type="button" disabled>Plantarme</button>
+  </div>
+ </div>
+ <div id="after" hidden><div class="row2" style="grid-template-columns:1fr"><button class="btn b1" id="bNext" type="button">Siguiente partida</button></div></div>
+</main>
+
+<!-- PREGUNTAS -->
+<main id="vPreg" hidden>
+ <h2 style="font-size:32px">¡Listo! Tres preguntas rápidas</h2>
+ <div class="sum" id="sumPart"></div>
+ <div class="q"><h3>1. Si jugaras de verdad, ¿con cuánto en la bolsa te plantarías?</h3><div class="opts" data-q="u"></div></div>
+ <div class="q"><h3>2. ¿Cuánto pagarías por una jugada en una feria?</h3><div class="opts" data-q="c"></div></div>
+ <div class="q"><h3>3. Si lo encontrás en una feria, ¿cuántas veces lo jugarías seguidas?</h3><div class="opts" data-q="v"></div></div>
+ <button class="btn b1" id="bSend" type="button" disabled hidden>Enviar mis respuestas</button>
+ <a class="btn wa" id="bWa" href="#" target="_blank" rel="noopener" aria-disabled="true">Enviar mis resultados por WhatsApp</a>
+ <div class="row2">
+  <button class="btn b3" id="bCopy" type="button" disabled>Copiar resultados</button>
+  <button class="btn b3" id="bMore" type="button">Jugar otra vez</button>
+ </div>
+ <p class="msg" id="msgP"></p>
+ <p class="note">Respondé las 3 preguntas para habilitar el envío. Si el botón de WhatsApp no abre, usá «Copiar resultados» y pegalo en el chat.</p>
+</main>
+
+<!-- RESULTADOS (para el grupo) -->
+<main id="vRes" class="wide" hidden>
+ <h2 style="font-size:36px">Resultados recolectados</h2>
+ <p>Pegá aquí los mensajes que te mandaron, o subí el chat exportado de WhatsApp (<i>Más → Exportar chat → Sin archivos</i>, un archivo .txt). Se leen solo las líneas que empiezan con <code>EKEKO1|</code>; los mensajes repetidos se cuentan una sola vez.</p>
+ <textarea id="paste" placeholder="EKEKO1|id=K7Q2|p=PD+8;PPN|u=10|c=5|v=3"></textarea>
+ <input type="file" id="file" accept=".txt,text/plain">
+ <div class="row2"><button class="btn b1" id="bAn" type="button">Analizar</button><button class="btn b3" id="bBack" type="button">Volver al juego</button></div>
+ <div id="out"></div>
+</main>
+
+<script>
+{
+const TELEFONO = ""; // ← opcional: número de WhatsApp que recibe los resultados, con código de país y sin "+" (ej.: 59171234567). Vacío = el jugador elige el chat.
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyoNz9Xd_Ri7227B0QvqpyeN2ijBTBp3sG3r5SGoJ_FJAQW-diXnOB0_z_fpn_nbdDa/exec"; // ← pegar aquí la URL de la aplicación web de Google Apps Script (termina en /exec). Vacío = se usa el envío por WhatsApp.
+const N_PART = 3, COSTO = 5, VAL = {D:6, P:2};
+function enviar(datos){
+ if(!SCRIPT_URL) return Promise.resolve(false);
+ return fetch(SCRIPT_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(datos)})
+  .then(()=>true).catch(()=>false);
+}
+const URNA = {D:5, P:10, N:5};
+const OPC = {
+ u:[["4","Bs 4"],["6","Bs 6"],["8","Bs 8"],["10","Bs 10"],["12","Bs 12"],["14","Bs 14"],["16","Bs 16 o más"]],
+ c:[["2","Bs 2"],["3","Bs 3"],["5","Bs 5"],["10","Bs 10"]],
+ v:[["1","1 vez"],["2","2"],["3","3"],["5","5 o más"],["0","No lo jugaría"]]
+};
+const $ = id => document.getElementById(id);
+const nombre = {D:"Dorada",P:"Plateada",N:"Negra"};
+const mkId = () => Array.from({length:4},()=>"ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random()*32)]).join("");
+let S = {id:mkId(), partidas:[], cur:null, ans:{}};
+
+function show(v){ for(const x of ["vInicio","vJuego","vPreg","vRes"]) $(x).hidden = x!==v; window.scrollTo(0,0); }
+
+function nueva(){
+ const urna = [];
+ for(const k in URNA) for(let i=0;i<URNA[k];i++) urna.push(k);
+ S.cur = {urna, seq:[], bolsa:0, fin:null};
+ $("tPart").textContent = `Partida ${S.partidas.length+1} de ${Math.max(N_PART,S.partidas.length+1)}`;
+ $("drawn").innerHTML = ""; $("msg").textContent = ""; $("msg").className="msg";
+ $("acts").hidden = false; $("after").hidden = true;
+ pinta();
+}
+function pinta(){
+ const c = S.cur, q = {D:0,P:0,N:0};
+ c.urna.forEach(k=>q[k]++);
+ $("amt").textContent = "Bs " + c.bolsa;
+ $("left").innerHTML = `Quedan en la urna: <b>${q.D}</b> doradas · <b>${q.P}</b> plateadas · <b>${q.N}</b> negras`;
+ $("bStop").disabled = c.bolsa===0 || !!c.fin;
+ $("bStop").textContent = c.bolsa>0 ? `Plantarme y cobrar Bs ${c.bolsa}` : "Plantarme";
+ $("bDraw").disabled = !!c.fin || c.urna.length===0;
+}
+function sacar(){
+ const c = S.cur; if(c.fin) return;
+ const i = Math.floor(Math.random()*c.urna.length);
+ const f = c.urna.splice(i,1)[0];
+ c.seq.push(f);
+ const el = document.createElement("span");
+ el.className = "chip "+f; el.textContent = f==="N" ? "✕" : "+"+VAL[f]; el.title = nombre[f];
+ $("drawn").appendChild(el);
+ if(f==="N"){
+  $("msg").textContent = c.bolsa>0 ? `¡Zafra! Salió la negra y perdiste los Bs ${c.bolsa} de la bolsa.` : "¡Zafra! Salió la negra en la primera ficha."; $("msg").className="msg bad";
+  c.fin = "N"; c.bolsa = 0; termina();
+ } else {
+  c.bolsa += VAL[f];
+  $("amt").classList.add("pop"); setTimeout(()=>$("amt").classList.remove("pop"),250);
+  $("msg").textContent = `${nombre[f]}: +Bs ${VAL[f]}`; $("msg").className="msg good";
+  if(!c.urna.some(k=>k!=="N")){ c.fin="+"; $("msg").textContent=`¡Vaciaste el tesoro! Cobrás Bs ${c.bolsa}.`; termina(); }
+ }
+ pinta();
+}
+function plantar(){
+ const c = S.cur; if(c.fin||c.bolsa===0) return;
+ c.fin = "+";
+ const g = c.bolsa - COSTO;
+ $("msg").textContent = `Te plantaste y cobrás Bs ${c.bolsa} (${g>=0?"ganás":"perdés"} Bs ${Math.abs(g)} netos).`;
+ $("msg").className = "msg " + (g>0?"good":"");
+ termina(); pinta();
+}
+function codigo(c){ return c.seq.join("") + (c.fin==="+" ? "+"+c.bolsa : ""); }
+function termina(){
+ S.partidas.push(codigo(S.cur));
+ { const c = S.cur, perd = c.fin==="N";
+   const b = c.seq.reduce((s,f)=>s+(VAL[f]||0),0);
+   enviar({tipo:"partida",id:S.id,n:S.partidas.length,seq:c.seq.join(""),fichas:c.seq.length,
+     resultado:perd?"zafra":"planto",monto:perd?0:c.bolsa,bolsa_perdida:perd?b:0}); }
+ $("acts").hidden = true; $("after").hidden = false;
+ $("bNext").textContent = S.partidas.length >= N_PART && S.partidas.length%N_PART===0 ? "Ver preguntas finales" : "Siguiente partida";
+}
+function siguiente(){
+ if(S.partidas.length%N_PART===0) preguntas(); else nueva();
+}
+function preguntas(){
+ $("sumPart").innerHTML = S.partidas.map((p,i)=>{
+  const t = p.includes("+") ? `cobraste Bs ${p.split("+")[1]}` : "Zafra: perdiste la bolsa";
+  return `<div><span>Partida ${i+1} · ${p.replace(/\+.*/,"").length} fichas</span><b>${t}</b></div>`;
+ }).join("");
+ document.querySelectorAll(".opts").forEach(box=>{
+  const q = box.dataset.q;
+  box.innerHTML = OPC[q].map(([v,l])=>`<button type="button" class="opt" data-v="${v}" aria-pressed="${S.ans[q]===v}">${l}</button>`).join("");
+ });
+ actualizaEnvio(); show("vPreg");
+}
+function mensaje(){
+ return `🎲 Mis resultados de El Tesoro del Ekeko\nEKEKO1|id=${S.id}|p=${S.partidas.join(";")}|u=${S.ans.u}|c=${S.ans.c}|v=${S.ans.v}`;
+}
+function actualizaEnvio(){
+ const ok = ["u","c","v"].every(k=>S.ans[k]!==undefined);
+ const a = $("bWa");
+ a.setAttribute("aria-disabled", String(!ok));
+ a.style.opacity = ok ? 1 : .4;
+ a.href = ok ? `https://wa.me/${TELEFONO}?text=${encodeURIComponent(mensaje())}` : "#";
+ $("bCopy").disabled = !ok;
+ $("bSend").disabled = !ok;
+}
+if(SCRIPT_URL){
+ $("bSend").hidden = false; $("bWa").hidden = true; $("bCopy").hidden = true;
+ document.querySelector("#vPreg .note").textContent = "Respondé las 3 preguntas para habilitar el envío. Tus partidas ya se guardaron automáticamente.";
+}
+$("bSend").addEventListener("click",async()=>{
+ $("bSend").disabled = true; $("msgP").textContent = "Enviando…";
+ const ok = await enviar({tipo:"encuesta",id:S.id,u:+S.ans.u,c:+S.ans.c,v:+S.ans.v,np:S.partidas.length});
+ $("msgP").textContent = ok ? "¡Gracias! Tus respuestas se guardaron. Podés jugar otra vez si querés." : "No se pudo enviar. Revisá tu conexión e intentá de nuevo.";
+ if(!ok) $("bSend").disabled = false;
+});
+document.querySelectorAll(".opts").forEach(box=>box.addEventListener("click",e=>{
+ const b = e.target.closest(".opt"); if(!b) return;
+ S.ans[box.dataset.q] = b.dataset.v;
+ box.querySelectorAll(".opt").forEach(o=>o.setAttribute("aria-pressed", String(o===b)));
+ actualizaEnvio();
+}));
+$("bWa").addEventListener("click",e=>{ if($("bWa").getAttribute("aria-disabled")==="true"){ e.preventDefault(); $("msgP").textContent="Primero respondé las 3 preguntas."; } else $("msgP").textContent="¡Gracias! Enviá el mensaje que se abrió en WhatsApp."; });
+async function copiar(txt, msgEl){
+ try{ await navigator.clipboard.writeText(txt); msgEl.textContent="Copiado. Ahora pegalo en el chat."; }
+ catch(e){ msgEl.textContent="No se pudo copiar automáticamente; copiá este texto: "+txt; }
+}
+$("bCopy").addEventListener("click",()=>copiar(mensaje(),$("msgP")));
+$("bMore").addEventListener("click",()=>{ show("vJuego"); nueva(); });
+$("bStart").addEventListener("click",()=>{ show("vJuego"); nueva(); });
+$("bDraw").addEventListener("click",sacar);
+$("bStop").addEventListener("click",plantar);
+$("bNext").addEventListener("click",siguiente);
+$("nPart").textContent = N_PART;
+
+/* ---------- RESULTADOS ---------- */
+function parse(txt){
+ const reg = /EKEKO1\|id=([A-Z0-9]+)\|p=([DPN+0-9;]*)\|u=(\d+)\|c=(\d+)\|v=(\d+)/g;
+ const vistos = new Map(); let m;
+ while((m = reg.exec(txt))) vistos.set(m[0], m);
+ const jug = [], part = [];
+ for(const m of vistos.values()){
+  const [,id,p,u,c,v] = m;
+  jug.push({id,u:+u,c:+c,v:+v});
+  p.split(";").filter(Boolean).forEach((s,i)=>{
+   const [seq,cob] = s.split("+");
+   let b = 0, perd = false;
+   for(const f of seq){ if(f==="N"){perd=true;break;} b += VAL[f]||0; }
+   part.push({id,n:i+1,seq,fichas:seq.length,plantado:!perd,monto:perd?0:b,bolsaPerdida:perd?b:0,ok:perd || +cob===b});
+  });
+ }
+ return {jug,part};
+}
+function freq(arr, orden){
+ const f = new Map(); arr.forEach(x=>f.set(x,(f.get(x)||0)+1));
+ const keys = orden || [...f.keys()].sort((a,b)=>a-b);
+ return keys.map(k=>[k,f.get(k)||0]);
+}
+function tabla(titulo, col, filas, fmt=k=>k){
+ const tot = filas.reduce((s,[,n])=>s+n,0), mx = Math.max(1,...filas.map(([,n])=>n));
+ return `<div class="box"><h3>${titulo}</h3><table><thead><tr><th>${col}</th><th>Frecuencia</th><th>%</th><th></th></tr></thead><tbody>${
+  filas.map(([k,n])=>`<tr><td>${fmt(k)}</td><td>${n}</td><td>${tot?(100*n/tot).toFixed(1):"0.0"}</td><td class="b"><div class="bar" style="width:${100*n/mx}%"></div></td></tr>`).join("")
+ }<tr><td><b>Total</b></td><td><b>${tot}</b></td><td></td><td></td></tr></tbody></table></div>`;
+}
+function analiza(txt){
+ const {jug,part} = parse(txt);
+ if(!jug.length){ $("out").innerHTML = `<p class="msg bad">No encontré ningún mensaje con el formato EKEKO1|… Revisá que pegaste el texto completo.</p>`; return; }
+ const pl = part.filter(p=>p.plantado), pe = part.filter(p=>!p.plantado);
+ const csvP = "id,partida,secuencia,fichas,resultado,monto_cobrado,bolsa_perdida\n" + part.map(p=>[p.id,p.n,p.seq,p.fichas,p.plantado?"planto":"zafra",p.monto,p.bolsaPerdida].join(",")).join("\n");
+ const csvJ = "id,se_plantaria_con_Bs,pagaria_Bs,veces_seguidas\n" + jug.map(j=>[j.id,j.u,j.c,j.v].join(",")).join("\n");
+ const bad = part.filter(p=>!p.ok).length;
+ $("out").innerHTML = `
+ <div class="kpis"><div><b>${jug.length}</b>jugadores</div><div><b>${part.length}</b>partidas</div><div><b>${pl.length}</b>se plantaron</div><div><b>${pe.length}</b>perdieron por Zafra</div></div>
+ ${bad?`<p class="msg bad">${bad} partida(s) tienen un monto que no coincide con sus fichas: revisalas.</p>`:""}
+ <div class="grid">
+  ${tabla("Monto con el que se plantaron (partidas reales)","Bs",freq(pl.map(p=>p.monto)),k=>"Bs "+k)}
+  ${tabla("Encuesta: ¿con cuánto te plantarías?","Bs",freq(jug.map(j=>j.u),[4,6,8,10,12,14,16]),k=>k===16?"Bs 16 o más":"Bs "+k)}
+  ${tabla("Fichas sacadas por partida","Fichas",freq(part.map(p=>p.fichas)))}
+  ${tabla("Encuesta: ¿cuánto pagarías por jugar?","Bs",freq(jug.map(j=>j.c),[2,3,5,10]),k=>"Bs "+k)}
+  ${tabla("Encuesta: ¿cuántas veces seguidas?","Veces",freq(jug.map(j=>j.v),[1,2,3,5,0]),k=>k===0?"No lo jugaría":k===5?"5 o más":k)}
+  ${tabla("Bolsa que tenían al salir la Zafra","Bs",freq(pe.map(p=>p.bolsaPerdida)),k=>"Bs "+k)}
+ </div>
+ <div class="grid">
+  <div class="box"><h3>Datos de partidas (CSV)</h3><textarea readonly id="cP">${csvP}</textarea><button class="btn b3" type="button" data-c="cP">Copiar CSV de partidas</button></div>
+  <div class="box"><h3>Datos de encuesta (CSV)</h3><textarea readonly id="cJ">${csvJ}</textarea><button class="btn b3" type="button" data-c="cJ">Copiar CSV de encuesta</button></div>
+ </div><p class="msg" id="msgR"></p>`;
+}
+$("out").addEventListener("click",e=>{ const b=e.target.closest("[data-c]"); if(b) copiar($(b.dataset.c).value,$("msgR")); });
+$("bAn").addEventListener("click",()=>analiza($("paste").value));
+$("file").addEventListener("change",e=>{
+ const f = e.target.files[0]; if(!f) return;
+ const r = new FileReader(); r.onload = ()=>{ $("paste").value = r.result; analiza(r.result); }; r.readAsText(f);
+});
+$("bBack").addEventListener("click",()=>{ location.hash=""; });
+function ruta(){
+ const res = location.hash==="#resultados";
+ $("navlink").textContent = res ? "Jugar" : "Resultados";
+ $("navlink").href = res ? "#" : "#resultados";
+ if(res) show("vRes"); else if(!$("vRes").hidden || [ "vInicio","vJuego","vPreg"].every(x=>$(x).hidden)) show("vInicio");
+}
+window.addEventListener("hashchange",ruta); ruta();
+}
+</script>
+</body>
+</html>
